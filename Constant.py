@@ -1,0 +1,22 @@
+WIDTH, HEIGHT = 700, 600
+ROWS, COLS = 6, 7
+SQUARE_SIZE = WIDTH//COLS
+LINE_WIDTH = 3
+PADDING = SQUARE_SIZE //5
+CIRCLE_RADIUS = SQUARE_SIZE/2 - 10
+FPS = 60
+
+#RGB
+RED = (255, 0, 0)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+BLUE = (0, 0, 255)
+DARKBLUE = (0, 0, 200)
+LIGHTGRAY = (211,211,211)
+GREEN = (0, 128, 0)
+
+
+# epsilon Greedy
+epsilon_start = 1
+epsilon_final = 0.01
+epsilon_decay = 25000

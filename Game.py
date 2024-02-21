@@ -15,10 +15,9 @@ win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Connect 4')
 environment = Connect4()
 graphics = Graphics(win, board = environment.state.board)
-player1 = DQN_Agent(player=1, env=environment, train=False, parameters_path="Data/params_1.pth")
-#player2 = Human_Agent(player=2)
-#player1 = AlphaBetaAgent(player=1, environment=environment)
-player2 = Random_Agent(player=-1)
+
+player1 = DQN_Agent(env=environment, player=1, train=False, parameters_path="Data/params_1.pth")
+player2 = Human_Agent(player=-1)
 
 
 def main ():
@@ -26,21 +25,15 @@ def main ():
     clock = pygame.time.Clock()
     graphics.draw()
     player = player1
-    wins = [0,0]
-    games = 100 # testing
+
     while(run):
         clock.tick(FPS)
-
+        
         if not isinstance(player, Human_Agent): # Computer playing
-            action = player.get_Action(state=environment.state)
+            action = player.get_Action(state=environment.state, train=False)
             if (environment.move(action, environment.state)):
-                run = checkEndGame(player, wins)
                 player = switchPlayers(player)
-                if not run and games:
-                    games -= 1
-                    environment.state.board[:] = 0 
-                    run = True
-                    print(games)
+                run = checkEndGame(player)
         else:
             for event in pygame.event.get(): # Human playing
                 if event.type == pygame.QUIT:
@@ -49,15 +42,15 @@ def main ():
                     action = player.get_Action(event, environment.state)
                     if 0 <= action < 7:
                         if environment.move(action, environment.state):
-                            run = checkEndGame(player)
                             player = switchPlayers(player)
+                            run = checkEndGame(player)
                     elif action == 7:
                         print("Invalid move!")
-
+        #print(environment.checkNInARow(environment.state, 4), -environment.state.player)
         graphics.draw() # Update graphics
         pygame.display.update()
+        #time.sleep(1)
         
-    print(f"dqn vs random win rate: {wins[0]}%")
     time.sleep(.2) 
     pygame.quit() # End game
 
@@ -68,14 +61,12 @@ def switchPlayers(player):
     else:
         return player1
 
-def checkEndGame(player, wins =[0,0]):
+def checkEndGame(player):
     if environment.checkGameWin(environment.state):
-        if player == player1:
+        if player != player1:
             playerName = "red"
-            wins[0] += 1
         else: 
             playerName = "blue"
-            wins[1] += 1
         print(f"Player {playerName} wins!")
         return False
     if environment.checkGameDraw(environment.state):

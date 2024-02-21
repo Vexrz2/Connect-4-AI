@@ -13,13 +13,13 @@ class AlphaBetaAgent:
         self.depth = depth
         self.environment : Connect4 = environment
 
-    def evaluate (self, gameState : State): #TODO
+    def evaluate (self, gameState : State): 
         score = self.environment.checkNInARow(gameState, 3)
         score += 10*self.environment.checkNInARow(gameState, 4)
         opponentState = State(gameState.board, self.opponent)
         score -= self.environment.checkNInARow(opponentState, 3)
         score -= 10*self.environment.checkNInARow(opponentState, 4)
-        
+
         return score
 
     def get_Action(self, state: State, train = False):
@@ -37,7 +37,7 @@ class AlphaBetaAgent:
         value = -MAXSCORE
 
         # stop state
-        if depth == self.depth or self.environment.checkGameWin(state) or self.environment.checkGameDraw(state):
+        if depth == self.depth or self.environment.is_end_of_game(state):
             value = self.evaluate(state)
             return value, state.action
         
@@ -62,7 +62,7 @@ class AlphaBetaAgent:
         value = MAXSCORE
           
         # stop state
-        if depth == self.depth or self.environment.checkGameWin(state) or self.environment.checkGameDraw(state):
+        if depth == self.depth or self.environment.is_end_of_game(state):
             value = self.evaluate(state)
             return value, state.action
         

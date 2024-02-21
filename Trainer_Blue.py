@@ -1,20 +1,20 @@
 from Connect4 import Connect4
-
+from State import State
 from DQN_Agent import DQN_Agent
 from ReplayBuffer import ReplayBuffer
 from Random_Agent import Random_Agent
 import torch
 from Tester import Tester
 
-epochs = 2000000
+epochs = 100000
 start_epoch = 0
-C = 100
-learning_rate = 0.01
+C = 1000
+learning_rate = 0.0001
 batch_size = 64
 env = Connect4()
-MIN_Buffer = 4000
+MIN_Buffer = 5000
 
-File_Num = 10
+File_Num = 2
 path_load= None
 path_Save=f'Data/params_{File_Num}.pth'
 path_best = f'Data/best_params_{File_Num}.pth'
@@ -26,14 +26,14 @@ path_best_random = f'Data/best_random_params_{File_Num}.pth'
 
 def main ():
     
-    player1 = DQN_Agent(player=-1, env=env,parametes_path=path_load)
+    player1 = DQN_Agent(player=-1, env=env,parameters_path=path_load)
     player_hat = DQN_Agent(player=1, env=env, train=False)
     Q = player1.DQN
     Q_hat = Q.copy()
     Q_hat.train = False
     player_hat.DQN = Q_hat
     
-    player2 = Random_Agent(player=1, env=env, train=True, random=0) # 0.1
+    player2 = Random_Agent(player=1) # 0.1
     buffer = ReplayBuffer(path=None)
 
     results = []
@@ -43,27 +43,26 @@ def main ():
     res = 0
     best_res = -200
     loss_count = 0
-    tester = Tester(player1=Random_Agent(player=1, env=env), player2=player1, env=env)
-    tester_fix = Tester(player1=player2, player2=player1, env=env)
+    tester = Tester(player1=Random_Agent(player=1), player2=player1, env=env)
     random_results = []
     best_random = -100
     
     
     # init optimizer
     optim = torch.optim.Adam(Q.parameters(), lr=learning_rate)
-    # scheduler = torch.optim.lr_scheduler.StepLR(optim,1000, gamma=0.95)
-    scheduler = torch.optim.lr_scheduler.MultiStepLR(optim,[30*50000, 30*100000, 30*250000, 30*500000], gamma=0.5)
+    # scheduler = torch.optim.lr_scheduler.StepLR(optim,100000*5, gamma=0.9)
+    # scheduler = torch.optim.lr_scheduler.MultiStepLR(optim,[30*50000, 30*100000, 30*250000, 30*500000], gamma=0.5)
     
     for epoch in range(start_epoch, epochs):
         print(f'epoch = {epoch}', end='\r')
         state = env.get_init_state()
         action = player2.get_Action(state=state)
-        state_1 = env.next_state(state=state, action=action)
+        state_1 = env.next_state(state=state, col=action)
         state_1_R = state_1.reverse()
         while not env.is_end_of_game(state_1_R):
-            # Sample Environement
-            action_1_R = player1.get_Action(state_1_R, epoch=epoch, black_state=state_1_R) # fix add param
-            after_state_1_R = env.next_state(state=state_1_R, action=action_1_R)
+            # Sample Environment
+            action_1_R = player1.get_Action(state_1_R, epoch=epoch, blue_state=state_1_R)
+            after_state_1_R = env.next_state(state=state_1_R, col=action_1_R)
             reward_1_R, end_of_game_1_R = env.reward(after_state_1_R)
             if end_of_game_1_R:
                 res += reward_1_R
@@ -71,7 +70,7 @@ def main ():
                 break
             state_2 = after_state_1_R.reverse()
             action_2 = player2.get_Action(state=state_2)
-            after_state_2 = env.next_state(state=state_2, action=action_2)
+            after_state_2 = env.next_state(state=state_2, col=action_2)
             after_state_2_R = after_state_2.reverse() 
             reward_2_R, end_of_game_2 = env.reward(state=after_state_2_R)
             if end_of_game_2:
@@ -85,7 +84,7 @@ def main ():
             # Train NN
             states, actions, rewards, next_states, dones = buffer.sample(batch_size)
             Q_values = Q(states, actions)
-            next_actions = player_hat.get_Actions(next_states, dones)
+            next_actions = player_hat.get_Actions(next_states, dones).unsqueeze(1)
             with torch.no_grad():
                 Q_hat_Values = Q_hat(next_states, next_actions)
 
@@ -94,7 +93,7 @@ def main ():
             optim.step()
             optim.zero_grad()
             
-            scheduler.step()
+            #scheduler.step()
             if loss_count <= 1000:
                 avgLoss = (avgLoss * loss_count + loss.item()) / (loss_count + 1)
                 loss_count += 1
@@ -110,14 +109,14 @@ def main ():
             results.append(res)
             if best_res < res:      
                 best_res = res
-                if best_res > 75 and tester_fix(1) == (0,1):
+                if best_res > 75:
                     player1.save_param(path_best)
             res = 0
 
         if (epoch+1) % 1000 == 0:
-            test = tester(100)
-            test_score = test[0]-test[1]
-            if best_random < test_score and tester_fix(1) == (0,1):
+            test = tester(1000)
+            test_score = test[1]-test[0]
+            if best_random < test_score:
                 best_random = test_score
                 player1.save_param(path_best_random)
             print(test)
@@ -130,7 +129,7 @@ def main ():
             torch.save(random_results, random_results_path)
         if len(buffer) > MIN_Buffer:
             print (f'epoch={epoch} loss={loss:.5f} Q_values[0]={Q_values[0].item():.3f} avgloss={avgLoss:.5f}', end=" ")
-            print (f'learning rate={scheduler.get_last_lr()[0]} path={path_Save} res= {res} best_res = {best_res}')
+            print (f'learning rate={learning_rate} path={path_Save} res= {res} best_res = {best_res}')
 
     torch.save({'epoch': epoch, 'results': results, 'avglosses':avgLosses}, results_path)
     torch.save(buffer, buffer_path)

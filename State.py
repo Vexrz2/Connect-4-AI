@@ -7,7 +7,7 @@ class State:
         self.board = board
         self.player = player
         self.action : int = None
-        self.last_action : tuple(int, int) = None
+        self.last_action : tuple[int, int] = None
 
     def get_opponent(self):
         return -self.player
@@ -35,6 +35,11 @@ class State:
         board = state_tensor.reshape([6,7]).cpu().numpy()
         return State(board, player=player)
     
+    def reverse (self):
+        reversed = self.copy()
+        reversed.board = reversed.board * -1
+        reversed.player = reversed.player * -1
+        return reversed
     
     def isInside(self, row_col):
         row, col = row_col

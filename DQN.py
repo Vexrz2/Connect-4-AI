@@ -5,7 +5,7 @@ import copy
 
 # Parameters
 input_size = 43 # state: board = 6 * 7 = 42 + action (1) 
-layer1 = 64
+layer1 = 128
 output_size = 1 # Q(state, action)
 gamma = 0.99 
 

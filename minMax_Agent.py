@@ -22,7 +22,7 @@ class minMax_Agent:
         
         return score
 
-    def get_Action(self, state: State):
+    def get_Action(self, state: State, train = False):
         bestAction = self.minMax(state)[1]
         return bestAction
 

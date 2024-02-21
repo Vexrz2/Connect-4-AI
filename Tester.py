@@ -2,6 +2,7 @@ from Random_Agent import Random_Agent
 from Connect4 import Connect4
 from DQN_Agent import DQN_Agent
 from AlphaBeta_Agent import AlphaBetaAgent
+from minMax_Agent import minMax_Agent
 
 class Tester:
     def __init__(self, env, player1, player2) -> None:
@@ -23,8 +24,10 @@ class Tester:
             if env.is_end_of_game(env.state):
                 games += 1
                 if env.checkGameDraw(env.state):
+                    env.state = env.get_init_state()
+                    player = self.player1
                     continue
-                if player==self.player2:
+                if player!=self.player2:
                     player2_win += 1
                 else: player1_win += 1
                 env.state = env.get_init_state()
@@ -43,11 +46,11 @@ class Tester:
 
 if __name__ == '__main__':
     env = Connect4()
-    player1 = AlphaBetaAgent(environment=env, player=1)
-    player2 = DQN_Agent(env=env, player=-1)
+    player1 = DQN_Agent(env=env, player=1, train=False, parameters_path="Data/params_1.pth")
+    player2 = AlphaBetaAgent(environment=env,player=-1)
     test = Tester(env,player1, player2)
-    #print(test.test(100))
-    player1 = DQN_Agent(env=env, player=1, parameters_path="Data/params_1.pth")
-    player2 = AlphaBetaAgent(environment=env, player=-1)
+    print(test.test(10))
+    player1 = AlphaBetaAgent(environment=env,player=1)
+    player2 = DQN_Agent(env=env, player=-1, train=False, parameters_path="Data/params_1.pth")
     test = Tester(env,player1, player2)
     print(test.test(10))

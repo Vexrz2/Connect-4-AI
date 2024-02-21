@@ -35,25 +35,27 @@ class Connect4:
             return True
         return False
 
-    def next_state(self, col, state: State):
+    def next_state(self, col, state: State) -> State:
         stateCopy = state.copy()
         self.move(col, stateCopy)
         return stateCopy  
     
     def checkGameWin(self, state : State): # Check for win
-        if state == self.get_init_state() or not state.last_action:
+        if state == self.get_init_state() or not state.last_action: # Still start of game
             return False
         row_col = state.last_action
-        return self.checkVertical(row_col, state, 4) or self.checkHorizontal(row_col, state, 4) or self.checkMainDiagonal(row_col, state, 4) or self.checkMinorDiagonal(row_col, state, 4)
+        state.switch_player() # switch to player that played last action
+        win = (self.checkVertical(row_col, state, 4) or self.checkHorizontal(row_col, state, 4) 
+               or self.checkMainDiagonal(row_col, state, 4) or self.checkMinorDiagonal(row_col, state, 4))
+        state.switch_player()
+        return win
 
     def checkVertical(self, row_col, state:State, length, temp = False): 
         row, col = row_col
         for startRow in range(max(0,row-length+1), min(row+1,ROWS-length+1)):
             colCheck = state.board[startRow:startRow+length,col]
-            if sum(colCheck) == -length*state.player: # Horizontal four in a row
+            if sum(colCheck) == length*state.player: # Horizontal four in a row
                 #print(f"vertical check: {row}, {startRow}, {colCheck}")
-                if temp:
-                    colCheck[:] = 0 # zero array if used for temp check like checkNInARow
                 return True
         return False
 
@@ -61,10 +63,8 @@ class Connect4:
         row, col = row_col
         for startCol in range(max(0,col-length+1), min(col+1,COLS-length+1)):
             rowCheck = state.board[row][startCol:startCol+length]
-            if sum(rowCheck) == -length*state.player: # Horizontal four in a row
+            if sum(rowCheck) == length*state.player: # Horizontal four in a row
                 #print(f"horizontal check: {row}, {startCol}, {rowCheck}")
-                if temp:
-                    rowCheck[:] = 0 
                 return True
         return False
 
@@ -86,7 +86,7 @@ class Connect4:
             endPoint = min(len(currentDiagonal) - length, row)
             for i in range(startPoint, endPoint+1):
                 diagCheck = currentDiagonal[i:i+length]
-                if sum(diagCheck) == -length*state.player:
+                if sum(diagCheck) == length*state.player:
                     return True
         else:
             startPoint = startCol # below main diagonal
@@ -94,7 +94,7 @@ class Connect4:
             endPoint = min(len(currentDiagonal) - length, col)
             for i in range(startPoint, endPoint+1):
                 diagCheck = currentDiagonal[i:i+length]
-                if sum(diagCheck) == -length*state.player:
+                if sum(diagCheck) == length*state.player:
                     return True
         return False
 
@@ -126,7 +126,6 @@ class Connect4:
     def checkNInARow(self, state: State, n): # Checks every piece if it's in a N row of the same piece and totals the amount in state
         total = 0
         stateCopy = state.copy()
-        stateCopy.switch_player()
         for i in range(ROWS):
             for j in range(COLS):
                 row_col = (i,j)
@@ -160,9 +159,9 @@ class Connect4:
             next_state = state
         if (self.is_end_of_game(next_state)):
             if self.checkGameDraw(next_state):
-                return 0, True
-            return state.player, True
-        return 0, False
+                return 0, True # Draw
+            return -state.player, True # Win
+        return 0, False # Not end of game
 
         
         

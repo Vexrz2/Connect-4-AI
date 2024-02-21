@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from State import State
 
-capacity = 100000
+capacity = 200000
 end_priority = 2
 
 class ReplayBuffer:
@@ -24,8 +24,8 @@ class ReplayBuffer:
         if (batch_size > self.__len__()):
             batch_size = self.__len__()
         state_tensors, action_tensor, reward_tensors, next_state_tensors, dones = zip(*random.sample(self.buffer, batch_size))
-        states = torch.vstack(state_tensors)
-        actions= torch.vstack(action_tensor)
+        states = torch.vstack(state_tensors).to(torch.float32)
+        actions= torch.vstack(action_tensor).to(torch.float32)
         rewards = torch.vstack(reward_tensors)
         next_states = torch.vstack(next_state_tensors)
         done_tensor = torch.tensor(dones).long().reshape(-1,1)

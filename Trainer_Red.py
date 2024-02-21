@@ -5,15 +5,15 @@ from Random_Agent import Random_Agent
 import torch
 from Tester import Tester
 
-epochs = 200000
+epochs = 500000
 start_epoch = 0
-C = 350
-learning_rate = 0.01
+C = 1000
+learning_rate = 0.0001
 batch_size = 64
 env = Connect4()
-MIN_Buffer = 4000
+MIN_Buffer = 5000
 
-File_Num = 1
+File_Num = 3
 path_load= f'Data/params_{File_Num}.pth'
 path_Save=f'Data/params_{File_Num}.pth'
 path_best = f'Data/best_params_{File_Num}.pth'
@@ -25,7 +25,7 @@ path_best_random = f'Data/best_random_params_{File_Num}.pth'
 
 def main ():
     
-    player1 = DQN_Agent(player=1, env=env, parameters_path=path_load)
+    player1 = DQN_Agent(player=1, env=env, parameters_path=None)
     player_hat = DQN_Agent(player=1, env=env, train=False)
     Q = player1.DQN
     Q_hat = Q.copy()
@@ -33,23 +33,23 @@ def main ():
     player_hat.DQN = Q_hat
     
     player2 = Random_Agent(player=-1)   #0.1 
-    buffer = ReplayBuffer(path=buffer_path)
+    buffer = ReplayBuffer(path=None)
     
-    results_file = torch.load(results_path)
-    results = results_file['results'] 
-    avgLosses = results_file['avglosses']     
-    avgLoss = avgLosses[-1] 
+    results_file = [] #torch.load(results_path)
+    results = [] #results_file['results'] # []
+    avgLosses = [] #results_file['avglosses']     #[]
+    avgLoss = 0 #avgLosses[-1] #0
     loss = torch.Tensor([0])
     res = 0
     best_res = -200
     loss_count = 0
     tester = Tester(player1=player1, player2=Random_Agent(player=-1), env=env)
-    random_results = torch.load(random_results_path)   
-    best_random = max(random_results)
+    random_results = [] #torch.load(random_results_path)
+    best_random = 0 #max(random_results)
     
     # init optimizer
     optim = torch.optim.Adam(Q.parameters(), lr=learning_rate)
-    scheduler = torch.optim.lr_scheduler.StepLR(optim,100000*30, gamma=0.90)
+    # scheduler = torch.optim.lr_scheduler.StepLR(optim,20000*10, gamma=0.90)
     # scheduler = torch.optim.lr_scheduler.MultiStepLR(optim,[30*50000, 30*100000, 30*250000, 30*500000], gamma=0.5)
     
     for epoch in range(start_epoch, epochs):
@@ -87,8 +87,8 @@ def main ():
             loss.backward()
             optim.step()
             optim.zero_grad()
-            
-            scheduler.step()
+            #scheduler.step()
+
             if loss_count <= 1000:
                 avgLoss = (avgLoss * loss_count + loss.item()) / (loss_count + 1)
                 loss_count += 1
@@ -96,7 +96,7 @@ def main ():
                 avgLoss += (loss.item()-avgLoss)* 0.00001 
             
         if epoch % C == 0:
-                Q_hat.load_state_dict(Q.state_dict())
+            Q_hat.load_state_dict(Q.state_dict())
 
         if (epoch+1) % 100 == 0:
             print(f'\nres= {res}')
@@ -109,7 +109,7 @@ def main ():
             res = 0
 
         if (epoch+1) % 1000 == 0:
-            test = tester(100)
+            test = tester(1000)
             test_score = test[0]-test[1]
             if best_random < test_score:
                 best_random = test_score
@@ -124,7 +124,7 @@ def main ():
             torch.save(random_results, random_results_path)
         if len(buffer) > MIN_Buffer:
             print (f'epoch={epoch} loss={loss:.5f} Q_values[0]={Q_values[0].item():.3f} avgloss={avgLoss:.5f}', end=" ")
-            print (f'learning rate={scheduler.get_last_lr()[0]} path={path_Save} res= {res} best_res = {best_res}')
+            print (f'learning rate={learning_rate} path={path_Save} res= {res} best_res = {best_res}')
 
     torch.save({'epoch': epoch, 'results': results, 'avglosses':avgLosses}, results_path)
     torch.save(buffer, buffer_path)

@@ -6,9 +6,9 @@ from Random_Agent import Random_Agent
 import torch
 from Tester import Tester
 
-epochs = 500000
+epochs = 100000
 start_epoch = 0
-C = 1000
+C = 500
 learning_rate = 0.0001
 batch_size = 64
 env = Connect4()

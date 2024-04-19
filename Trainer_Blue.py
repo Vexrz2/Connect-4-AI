@@ -6,10 +6,10 @@ from Random_Agent import Random_Agent
 import torch
 from Tester import Tester
 
-epochs = 100000
+epochs = 500000
 start_epoch = 0
 C = 1000
-learning_rate = 0.0001
+learning_rate = 0.00005
 batch_size = 64
 env = Connect4()
 MIN_Buffer = 5000
@@ -33,7 +33,7 @@ def main ():
     Q_hat.train = False
     player_hat.DQN = Q_hat
     
-    player2 = Random_Agent(player=1) # 0.1
+    player2 = Random_Agent(player=1) 
     buffer = ReplayBuffer(path=None)
 
     results = []
@@ -61,26 +61,28 @@ def main ():
         state_1_R = state_1.reverse()
         while not env.is_end_of_game(state_1_R):
             # Sample Environment
-            action_1_R = player1.get_Action(state_1_R, epoch=epoch, blue_state=state_1_R)
-            after_state_1_R = env.next_state(state=state_1_R, col=action_1_R)
-            reward_1_R, end_of_game_1_R = env.reward(after_state_1_R)
+            action_1_R = player1.get_Action(state_1, epoch=epoch, blue_state=state_1_R)
+            after_state_1 = env.next_state(state=state_1, col=action)
+            after_state_1_R = after_state_1.reverse()
+            reward_1, end_of_game_1 = env.reward(after_state_1)
+            reward_1_R, end_of_game_1_R = -reward_1, end_of_game_1
             if end_of_game_1_R:
-                res += reward_1_R
+                res += reward_1
                 buffer.push(state_1_R, action_1_R, reward_1_R, after_state_1_R, True)
                 break
             state_2 = after_state_1_R.reverse()
             action_2 = player2.get_Action(state=state_2)
             after_state_2 = env.next_state(state=state_2, col=action_2)
             after_state_2_R = after_state_2.reverse() 
-            reward_2_R, end_of_game_2 = env.reward(state=after_state_2_R)
+            reward_2, end_of_game_2 = env.reward(state=after_state_2)
+            reward_2_R, end_of_game_2_R = -reward_2, end_of_game_2
             if end_of_game_2:
-                res += reward_2_R
+                res += reward_2
             buffer.push(state_1_R, action_1_R, reward_2_R, after_state_2_R, end_of_game_2)
             state_1_R = after_state_2_R
-
             if len(buffer) < MIN_Buffer:
                 continue
-            
+
             # Train NN
             states, actions, rewards, next_states, dones = buffer.sample(batch_size)
             Q_values = Q(states, actions)

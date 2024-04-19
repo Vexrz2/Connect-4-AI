@@ -16,7 +16,7 @@ pygame.display.set_caption('Connect 4')
 environment = Connect4()
 graphics = Graphics(win, board = environment.state.board)
 
-player1 = DQN_Agent(env=environment, player=1, train=False, parameters_path="Data/params_1.pth")
+player1 = Human_Agent(player=1)
 player2 = Human_Agent(player=-1)
 
 

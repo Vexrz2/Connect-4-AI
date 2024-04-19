@@ -13,7 +13,7 @@ class minMax_Agent:
         self.depth = depth
         self.environment : Connect4 = environment
 
-    def evaluate(self, gameState : State): # TODO 
+    def evaluate(self, gameState : State): 
         score = self.environment.checkNInARow(gameState, 3)
         score += 10*self.environment.checkNInARow(gameState, 4)
         opponentState = State(gameState.board, self.opponent)

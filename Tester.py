@@ -43,14 +43,17 @@ class Tester:
 
     def __call__(self, games_num):
         return self.test(games_num)
+    
+
+tests = 1000
 
 if __name__ == '__main__':
     env = Connect4()
-    player1 = DQN_Agent(env=env, player=1, train=False, parameters_path="Data/params_1.pth")
-    player2 = AlphaBetaAgent(environment=env,player=-1)
+    player1 = DQN_Agent(env=env, player=1, train=False, parameters_path="Data/params_4.pth")
+    player2 = Random_Agent(player=-1)
     test = Tester(env,player1, player2)
-    print(test.test(10))
-    player1 = AlphaBetaAgent(environment=env,player=1)
-    player2 = DQN_Agent(env=env, player=-1, train=False, parameters_path="Data/params_1.pth")
+    print(test.test(tests))
+    player1 = Random_Agent(player=1)
+    player2 = DQN_Agent(env=env, player=-1, train=False, parameters_path="Data/params_4.pth")
     test = Tester(env,player1, player2)
-    print(test.test(10))
+    print(test.test(tests))

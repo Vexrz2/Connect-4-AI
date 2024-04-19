@@ -19,4 +19,4 @@ GREEN = (0, 128, 0)
 # epsilon Greedy
 epsilon_start = 1
 epsilon_final = 0.1
-epsilon_decay = 200000
+epsilon_decay = 300000

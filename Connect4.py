@@ -50,7 +50,7 @@ class Connect4:
         state.switch_player()
         return win
 
-    def checkVertical(self, row_col, state:State, length, temp = False): 
+    def checkVertical(self, row_col, state:State, length): 
         row, col = row_col
         for startRow in range(max(0,row-length+1), min(row+1,ROWS-length+1)):
             colCheck = state.board[startRow:startRow+length,col]
@@ -59,7 +59,7 @@ class Connect4:
                 return True
         return False
 
-    def checkHorizontal(self, row_col, state:State, length, temp = False): 
+    def checkHorizontal(self, row_col, state:State, length): 
         row, col = row_col
         for startCol in range(max(0,col-length+1), min(col+1,COLS-length+1)):
             rowCheck = state.board[row][startCol:startCol+length]
@@ -68,7 +68,7 @@ class Connect4:
                 return True
         return False
 
-    def checkMainDiagonal(self, row_col, state:State, length, temp = False):
+    def checkMainDiagonal(self, row_col, state:State, length):
         row, col = row_col
         offset = col - row # find offset from main diagonal
 
@@ -98,7 +98,7 @@ class Connect4:
                     return True
         return False
 
-    def checkMinorDiagonal(self, row_col, state:State, length, temp = False):
+    def checkMinorDiagonal(self, row_col, state:State, length):
         flipBoard = np.flipud(state.board)
         row, col = row_col
         if row < ROWS // 2:
@@ -108,7 +108,7 @@ class Connect4:
         flipRowCol = (flipRow, col)
         flipState = State(flipBoard, state.player)
 
-        return self.checkMainDiagonal(flipRowCol, flipState, length, temp)
+        return self.checkMainDiagonal(flipRowCol, flipState, length)
     
     def isInside(self, row_col, rows, cols): # Checks if (row, col) is inside board or outside boundaries
         row, col = row_col
@@ -129,8 +129,8 @@ class Connect4:
         for i in range(ROWS):
             for j in range(COLS):
                 row_col = (i,j)
-                if (self.checkVertical(row_col, stateCopy, n, True) or self.checkHorizontal(row_col, stateCopy, n, True) 
-                or self.checkMainDiagonal(row_col, stateCopy, n, True) or self.checkMinorDiagonal(row_col, stateCopy, n, True)):
+                if (self.checkVertical(row_col, stateCopy, n) or self.checkHorizontal(row_col, stateCopy, n) 
+                or self.checkMainDiagonal(row_col, stateCopy, n) or self.checkMinorDiagonal(row_col, stateCopy, n)):
                     
                     total += 1
 

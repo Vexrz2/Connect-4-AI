@@ -23,7 +23,7 @@ class DQN_Agent:
           else:
               self.DQN.eval()
 
-    def get_Action (self, state:State, epoch = 0, events= None, train = True, blue_state = None) -> tuple:
+    def get_Action (self, state:State, epoch = 0, events= None, train = True, blue_state = None) -> int:
         actions = self.env.get_actions(self.env.state)
         if self.train and train:
             epsilon = self.epsilon_greedy(epoch)

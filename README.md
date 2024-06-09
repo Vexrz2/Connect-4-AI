@@ -11,3 +11,7 @@
 
  ### Play with DQN
  To play with the DQN agent, you need to train a network first with custom parameters (network size, batch size, etc.) and store the parameters after training in files (for parameters_path parameter in DQN agent constructor).
+
+ ### Requirements
+ Install python libraries: pygame, torch (for DQN), time, numpy
+

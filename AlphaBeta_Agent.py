@@ -19,7 +19,6 @@ class AlphaBetaAgent:
         opponentState = State(gameState.board, self.opponent)
         score -= self.environment.checkNInARow(opponentState, 3)
         score -= 10*self.environment.checkNInARow(opponentState, 4)
-
         return score
 
     def get_Action(self, state: State, train = False):

@@ -131,7 +131,6 @@ class Connect4:
                 row_col = (i,j)
                 if (self.checkVertical(row_col, stateCopy, n) or self.checkHorizontal(row_col, stateCopy, n) 
                 or self.checkMainDiagonal(row_col, stateCopy, n) or self.checkMinorDiagonal(row_col, stateCopy, n)):
-                    
                     total += 1
 
         return total

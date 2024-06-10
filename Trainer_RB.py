@@ -61,7 +61,7 @@ def main ():
         print(f'epoch = {epoch}', end='\r')
         state_1 = env.get_init_state()
         state_2, action_2, after_state_2 = None, None, None
-        state_2_R, after_state_2_R = None, None
+        state_2_R, action_2_R, after_state_2_R = None, None, None
         while not env.is_end_of_game(state_1):
         # Sample Environement
             # red

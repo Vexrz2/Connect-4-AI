@@ -19,7 +19,7 @@ graphics = Graphics(win, board = environment.state.board)
 player1 = Human_Agent(player=1)
 #player1 = Random_Agent(player=1)
 #player1 = AlphaBetaAgent(player=1, environment=environment)
-# player1 = DQN_Agent(env=environment, player=1, train=False, parameters_path="Data/best_random_params_4.pth")
+# player1 = DQN_Agent(env=environment, player=1, train=False, parameters_path="Data/params_4.pth")
 
 player2 = Human_Agent(player=-1)
 #player2 = Random_Agent(player=-1)

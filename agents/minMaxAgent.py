@@ -13,10 +13,10 @@ class minMaxAgent:
         self.environment : Connect4 = environment
 
     def evaluate(self, gameState : State): 
-        score = self.environment.get_n_sequences(gameState, 2) + 10*self.environment.get_n_sequences(gameState, 3) + 1000*self.environment.get_n_sequences(gameState, 4)
+        score = 6*self.environment.get_n_sequences(gameState, 2) + 40*self.environment.get_n_sequences(gameState, 3) + 3000*self.environment.get_n_sequences(gameState, 4)
         
         opponentState = State(gameState.board, self.opponent)
-        score -= self.environment.get_n_sequences(opponentState, 2) + 10*self.environment.get_n_sequences(opponentState, 3) + 1000*self.environment.get_n_sequences(opponentState, 4)
+        score -= 6*self.environment.get_n_sequences(opponentState, 2) + 40*self.environment.get_n_sequences(opponentState, 3) + 3000*self.environment.get_n_sequences(opponentState, 4)
         
         return score
 

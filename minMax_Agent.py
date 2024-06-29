@@ -4,7 +4,7 @@ MAXSCORE = 100000
 
 class minMax_Agent:
 
-    def __init__(self, player, depth = 3, environment: Connect4 = None):
+    def __init__(self, player, depth = 2, environment: Connect4 = None):
         self.player = player
         if self.player == 1:
             self.opponent = -1

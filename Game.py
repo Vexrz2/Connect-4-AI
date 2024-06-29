@@ -64,6 +64,7 @@ def switch_players(player):
 
 def check_end_game(player):
     if environment.check_game_win(environment.state):
+        time.sleep(1)
         if player != player1:
             playerName = "red"
         else: 

@@ -54,7 +54,7 @@ class Connect4:
     def check_vertical(self, row_col, state:State, length): 
         row, col = row_col
         for startRow in range(max(0,row-length+1), min(row+1,ROWS-length+1)):
-            colCheck = state.board[startRow:startRow+length,col]
+            colCheck = state.board[startRow:startRow+length, col]
             if sum(colCheck) == length*state.player: # Horizontal four in a row
                 #print(f"vertical check: {row}, {startRow}, {colCheck}")
                 return True
@@ -63,7 +63,7 @@ class Connect4:
     def check_horizontal(self, row_col, state:State, length): 
         row, col = row_col
         for startCol in range(max(0,col-length+1), min(col+1,COLS-length+1)):
-            rowCheck = state.board[row][startCol:startCol+length]
+            rowCheck = state.board[row, startCol:startCol+length]
             if sum(rowCheck) == length*state.player: # Horizontal four in a row
                 #print(f"horizontal check: {row}, {startCol}, {rowCheck}")
                 return True

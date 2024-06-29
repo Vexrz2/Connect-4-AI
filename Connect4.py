@@ -15,7 +15,6 @@ class Connect4:
         return State (board, 1) # Board of zeroes, player 1 starts.
 
     def check_legal_col(self, col: int, state: State) -> bool:
-        print(state.player, col, state.board[0][col] == 0)
         return state.board[0][col] == 0 # Checks if top cell in column is empty
 
     def get_actions(self, state: State = None):
@@ -102,10 +101,7 @@ class Connect4:
     def check_minor_diagonal(self, row_col, state:State, length):
         flipBoard = np.flipud(state.board)
         row, col = row_col
-        if row < ROWS // 2:
-            flipRow = ROWS - row - 1
-        else:
-            flipRow = ROWS - row + 1
+        flipRow = ROWS - row - 1
         flipRowCol = (flipRow, col)
         flipState = State(flipBoard, state.player)
 

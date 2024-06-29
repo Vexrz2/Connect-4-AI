@@ -12,12 +12,12 @@ graphics = Graphics(win, board = environment.state.board)
 
 player1 = HumanAgent(player=1)
 #player1 = RandomAgent(player=1)
-#player1 = AlphaBetaAgent(player=1, environment=environment)
+#player1 = AlphaBetaAgent(player=1, depth=4, environment=environment)
 #player1 = DQNAgent(env=environment, player=1, train=False, parameters_path="Data/params_4.pth")
 
 # player2 = HumanAgent(player=-1)
 #player2 = RandomAgent(player=-1)
-player2 = AlphaBetaAgent(player=-1, environment=environment)
+player2 = AlphaBetaAgent(player=-1, depth=4, environment=environment)
 #player2 = DQNAgent(env=environment, player=-1, train=False, parameters_path="Data/params_4.pth")
 
 def main ():
@@ -30,7 +30,6 @@ def main ():
         clock.tick(FPS)
         
         if not isinstance(player, HumanAgent): # Computer playing
-            time.sleep(1) # Extra (thinking) time for computer's turn
             action = player.get_action(state=environment.state)
             if (environment.move(action, environment.state)):
                 player = switch_players(player)
@@ -39,6 +38,7 @@ def main ():
             for event in pygame.event.get(): # Human playing
                 if event.type == pygame.QUIT:
                     run = False
+                    break
                 if event.type == pygame.KEYUP:
                     action = player.get_action(event)
                     if 0 <= action <= 6: 
@@ -49,6 +49,7 @@ def main ():
                             print("Column full!")
                     elif action == 7:
                         print("Invalid move!")
+                    break
         graphics.draw() # Update graphics
         pygame.display.update()
         

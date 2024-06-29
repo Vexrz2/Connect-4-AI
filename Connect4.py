@@ -14,7 +14,8 @@ class Connect4:
         board = np.zeros([ROWS, COLS],int)
         return State (board, 1) # Board of zeroes, player 1 starts.
 
-    def check_legal_col(self, col, state: State):
+    def check_legal_col(self, col: int, state: State) -> bool:
+        print(state.player, col, state.board[0][col] == 0)
         return state.board[0][col] == 0 # Checks if top cell in column is empty
 
     def get_actions(self, state: State = None):

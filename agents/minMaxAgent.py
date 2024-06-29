@@ -34,7 +34,7 @@ class minMaxAgent:
         # stop state
         if depth == self.depth or self.environment.is_end_of_game():
             value = self.evaluate(state)
-            return value, state.action
+            return value, state.last_action[1]
         
         # start recursion
         bestAction = None
@@ -55,7 +55,7 @@ class minMaxAgent:
         # stop state
         if depth == self.depth or self.environment.is_end_of_game():
             value = self.evaluate(state)
-            return value, state.action
+            return value, state.last_action[1]
         
         # start recursion
         bestAction = None

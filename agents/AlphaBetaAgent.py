@@ -1,9 +1,9 @@
 from Connect4 import Connect4
 from State import State
-MAXSCORE = 1000
+MAXSCORE = 100000
 
 class AlphaBetaAgent:
-    def __init__(self, player, depth = 3, environment: Connect4 = None):
+    def __init__(self, player, depth = 4, environment: Connect4 = None):
         self.player = player
         if self.player == 1:
             self.opponent = -1
@@ -20,7 +20,7 @@ class AlphaBetaAgent:
         
         return score
     
-    def get_action(self, state: State):
+    def get_action(self, state: State) -> int:
         value, bestAction = self.min_max(state)
         return bestAction
 
@@ -37,7 +37,8 @@ class AlphaBetaAgent:
         # stop state
         if depth == self.depth or self.environment.is_end_of_game(state):
             value = self.evaluate(state)
-            return value, state.action
+            state.last_action[1]
+            return value, state.last_action[1]
         
         # start recursion
         bestAction = None
@@ -62,7 +63,7 @@ class AlphaBetaAgent:
         # stop state
         if depth == self.depth or self.environment.is_end_of_game(state):
             value = self.evaluate(state)
-            return value, state.action
+            return value, state.last_action[1]
         
         # start recursion
         bestAction = None

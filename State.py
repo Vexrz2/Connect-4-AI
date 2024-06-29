@@ -6,7 +6,6 @@ class State:
     def __init__(self, board : np.ndarray = None, player = 1) -> None:
         self.board = board 
         self.player = player
-        self.action : int = None
         self.last_action : tuple[int, int] = None
 
     def get_opponent(self):

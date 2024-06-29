@@ -40,17 +40,17 @@ class Connect4:
         self.move(col, stateCopy)
         return stateCopy  
     
-    def checkGameWin(self, state : State): # Check for win
+    def check_game_win(self, state : State): # Check for win
         if state == self.get_init_state() or not state.last_action: # Still start of game
             return False
         row_col = state.last_action
         state.switch_player() # switch to player that played last action
-        win = (self.checkVertical(row_col, state, 4) or self.checkHorizontal(row_col, state, 4) 
-               or self.checkMainDiagonal(row_col, state, 4) or self.checkMinorDiagonal(row_col, state, 4))
+        win = (self.check_vertical(row_col, state, 4) or self.check_horizontal(row_col, state, 4) 
+               or self.check_main_diagonal(row_col, state, 4) or self.check_minor_diagonal(row_col, state, 4))
         state.switch_player()
         return win
 
-    def checkVertical(self, row_col, state:State, length): 
+    def check_vertical(self, row_col, state:State, length): 
         row, col = row_col
         for startRow in range(max(0,row-length+1), min(row+1,ROWS-length+1)):
             colCheck = state.board[startRow:startRow+length,col]
@@ -59,7 +59,7 @@ class Connect4:
                 return True
         return False
 
-    def checkHorizontal(self, row_col, state:State, length): 
+    def check_horizontal(self, row_col, state:State, length): 
         row, col = row_col
         for startCol in range(max(0,col-length+1), min(col+1,COLS-length+1)):
             rowCheck = state.board[row][startCol:startCol+length]
@@ -68,7 +68,7 @@ class Connect4:
                 return True
         return False
 
-    def checkMainDiagonal(self, row_col, state:State, length):
+    def check_main_diagonal(self, row_col, state:State, length):
         row, col = row_col
         offset = col - row # find offset from main diagonal
 
@@ -98,7 +98,7 @@ class Connect4:
                     return True
         return False
 
-    def checkMinorDiagonal(self, row_col, state:State, length):
+    def check_minor_diagonal(self, row_col, state:State, length):
         flipBoard = np.flipud(state.board)
         row, col = row_col
         if row < ROWS // 2:
@@ -108,45 +108,41 @@ class Connect4:
         flipRowCol = (flipRow, col)
         flipState = State(flipBoard, state.player)
 
-        return self.checkMainDiagonal(flipRowCol, flipState, length)
-    
-    def isInside(self, row_col, rows, cols): # Checks if (row, col) is inside board or outside boundaries
-        row, col = row_col
-        return 0 <= row < rows and 0 <= col < cols
+        return self.check_main_diagonal(flipRowCol, flipState, length)
 
     def is_end_of_game(self, state: State):
-        return self.checkGameDraw(state) or self.checkGameWin(state)
+        return self.check_game_draw(state) or self.check_game_win(state)
     
-    def checkGameDraw(self, state: State): # Checks if the game has come to a draw
+    def check_game_draw(self, state: State): # Checks if the game has come to a draw
         for col in range(0, COLS):
             if (self.check_legal_col(col, state)):
                 return False
         return True
 
-    def checkNInARow(self, state: State, n): # Checks every piece if it's in a N row of the same piece and totals the amount in state
+    def get_n_sequences(self, state: State, n): # Returns amount of sequences in board of length N (N in a row)
         total = 0
         stateCopy = state.copy()
         for i in range(ROWS):
             for j in range(COLS):
                 row_col = (i,j)
-                if (self.checkVertical(row_col, stateCopy, n) or self.checkHorizontal(row_col, stateCopy, n) 
-                or self.checkMainDiagonal(row_col, stateCopy, n) or self.checkMinorDiagonal(row_col, stateCopy, n)):
+                if (self.check_vertical(row_col, stateCopy, n) or self.check_horizontal(row_col, stateCopy, n) 
+                or self.check_main_diagonal(row_col, stateCopy, n) or self.check_minor_diagonal(row_col, stateCopy, n)):
                     total += 1
 
         return total
     
-    def get_all_next_states (self, state: State) -> tuple:
+    def get_all_next_states(self, state: State) -> tuple:
         legal_actions = self.get_actions(state)
         next_states = []
         for action in legal_actions:
             next_states.append(self.next_state(action, state))
         return next_states, legal_actions
 
-    def toTensor (self, list_states, device = torch.device('cpu')) -> tuple:
+    def to_tensor (self, list_states : list[State], device = torch.device('cpu')) -> tuple:
         list_board_tensors = []
         list_legal_actions = []
         for state in list_states:
-            board_tensor, legal_actions = state.toTensor(device) 
+            board_tensor, legal_actions = state.to_tensor(device) 
             list_board_tensors.append(board_tensor)
             list_legal_actions.append(torch.tensor(legal_actions))
         return torch.vstack(list_board_tensors), torch.vstack(list_legal_actions)
@@ -157,7 +153,7 @@ class Connect4:
         else:
             next_state = state
         if (self.is_end_of_game(next_state)):
-            if self.checkGameDraw(next_state):
+            if self.check_game_draw(next_state):
                 return 0, True # Draw
             return -state.player, True # Win
         return 0, False # Not end of game

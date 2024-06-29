@@ -6,7 +6,7 @@ from Constant import *
 pygame.init()
 
 class Graphics:
-    def __init__(self, win, board):
+    def __init__(self, win, board : np.ndarray):
         self.board = board
         rows, cols = board.shape
         self.win = win
@@ -57,7 +57,7 @@ class Graphics:
         if player == 1:
             return RED
         elif player == -1:
-            return BLUE
+            return YELLOW
         else:
             return WHITE
 

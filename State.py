@@ -3,8 +3,8 @@ from Graphics import *
 import torch
 
 class State:
-    def __init__(self, board= None, player = 1) -> None:
-        self.board = board
+    def __init__(self, board : np.ndarray = None, player = 1) -> None:
+        self.board = board 
         self.player = player
         self.action : int = None
         self.last_action : tuple[int, int] = None
@@ -25,13 +25,13 @@ class State:
         newBoard = np.copy(self.board)
         return State(board=newBoard, player=self.player)
 
-    def toTensor (self, device = torch.device('cpu')) -> tuple:
+    def to_tensor (self, device = torch.device('cpu')) -> torch.Tensor:
         board_np = self.board.reshape(-1)
         board_tensor = torch.tensor(board_np, dtype=torch.int32, device=device)
         return board_tensor
     
     [staticmethod]
-    def tensorToState (state_tensor, player):
+    def tensor_to_state (state_tensor : torch.Tensor, player):
         board = state_tensor.reshape([6,7]).cpu().numpy()
         return State(board, player=player)
     
@@ -40,8 +40,4 @@ class State:
         reversed.board = reversed.board * -1
         reversed.player = reversed.player * -1
         return reversed
-    
-    def isInside(self, row_col):
-        row, col = row_col
-        return 0 <= row < ROWS and 0 <= col < COLS
     

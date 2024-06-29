@@ -1,8 +1,6 @@
 from Connect4 import Connect4
-
-from DQN_Agent import DQN_Agent
+from agents import RandomAgent, DQNAgent
 from ReplayBuffer import ReplayBuffer
-from Random_Agent import Random_Agent
 import torch
 from Tester import Tester
 
@@ -23,13 +21,10 @@ results_path=f'Data/results_{File_Num}.pth'
 random_results_path = f'Data/random_results_{File_Num}.pth'
 path_best_random = f'Data/best_random_params_{File_Num}.pth'
 
-
 def main ():
-    
-    player1 = DQN_Agent(player=1, env=env,parameters_path=None)
-    player2 = DQN_Agent(player=-1, env=env,parameters_path=None)
-    player_hat = DQN_Agent(player=1, env=env,parameters_path=None)
-    
+    player1 = DQNAgent(player=1, env=env,parameters_path=None)
+    player2 = DQNAgent(player=-1, env=env,parameters_path=None)
+    player_hat = DQNAgent(player=1, env=env,parameters_path=None)
         
     Q = player1.DQN
     player2.DQN = Q
@@ -39,18 +34,19 @@ def main ():
     
 
     buffer = ReplayBuffer(path=None) # buffer_path
+    load = False
     
     results_file = torch.load(results_path)
-    results =  [] # results_file['results']
-    avgLosses = []     # results_file['avglosses']
-    avgLoss = 0 #  avgLosses[-1]
+    results = results_file['results'] if load else []
+    avgLosses = results_file['avglosses'] if load else []
+    avgLoss = avgLosses[-1] if load else 0
     loss = torch.Tensor([0])
     res = 0
     best_res = -200
     loss_count = 0
-    tester_random = Tester(player1=player1, player2=Random_Agent(player=-1), env=env)
-    random_results =  []  #  torch.load(random_results_path)
-    best_random = -100 #  max(random_results)
+    tester = Tester(player1=player1, player2=RandomAgent(player=-1), env=env)
+    random_results = torch.load(random_results_path) if load else []
+    best_random = max(random_results) if load else -100
         
     # init optimizer
     optim = torch.optim.Adam(Q.parameters(), lr=learning_rate)
@@ -65,23 +61,23 @@ def main ():
         while not env.is_end_of_game(state_1):
         # Sample Environement
             # red
-            action_1 = player1.get_Action(state_1, epoch=epoch)
+            action_1 = player1.get_action(state_1, epoch=epoch)
             action_1_R = action_1
             after_state_1 = env.next_state(state=state_1, col=action_1)
             after_state_1_R = after_state_1.reverse()
             reward_1, end_of_game_1 = env.reward(after_state_1)
             reward_1_R, end_of_game_1_R = -reward_1, end_of_game_1 
             if state_2: # not the first action in a game
-                    buffer.push(state_2_R, action_2_R, reward_1_R, after_state_1_R, end_of_game_1_R)    # for blue
+                    buffer.push(state_2_R, action_2_R, reward_1_R, after_state_1_R, end_of_game_1_R)    # for yellow
             if end_of_game_1:
                 res += reward_1
                 buffer.push(state_1, action_1, reward_1, after_state_1, True) # for red
                 state_1 = after_state_1
             else:
-                # Blue
+                # Yellow
                 state_2 = after_state_1
                 state_2_R = after_state_1_R
-                action_2 = player2.get_Action(state=state_2, epoch=epoch, blue_state=state_2_R)
+                action_2 = player2.get_action(state=state_2, epoch=epoch, yellow_state=state_2_R)
                 action_2_R = action_2
                 after_state_2 = env.next_state(state=state_2, col=action_2)
                 after_state_2_R = after_state_2.reverse()
@@ -89,7 +85,7 @@ def main ():
                 reward_2_R, end_of_game_2_R = -reward_2, end_of_game_2
                 if end_of_game_2:
                     res += reward_2
-                    buffer.push(state_2_R, action_2_R, reward_2_R, after_state_2_R, True) # for blue
+                    buffer.push(state_2_R, action_2_R, reward_2_R, after_state_2_R, True) # for yellow
                 buffer.push(state_1, action_1, reward_2, after_state_2, end_of_game_2)
                 state_1 = after_state_2
             if len(buffer) < MIN_Buffer:
@@ -98,7 +94,7 @@ def main ():
             # Train NN
             states, actions, rewards, next_states, dones = buffer.sample(batch_size)
             Q_values = Q(states, actions)
-            next_actions = player_hat.get_Actions(next_states, dones).unsqueeze(1)
+            next_actions = player_hat.get_actions(next_states, dones).unsqueeze(1)
             with torch.no_grad():
                 Q_hat_Values = Q_hat(next_states, next_actions) 
 
@@ -115,9 +111,9 @@ def main ():
                 avgLoss += (loss.item()-avgLoss)* 0.00001 
 
         if epoch % C == 0:
-            Q_hat.load_state_dict(Q.state_dict())
+            Q_hat.load_state_dict(Q.state_dict()) # Update target network every C epochs
         
-        if (epoch+1) % 100 == 0:
+        if (epoch+1) % 100 == 0:        # Add avg loss and res to data files every 100 epochs
             print(f'\nres= {res}')
             avgLosses.append(avgLoss)
             results.append(res)
@@ -127,8 +123,8 @@ def main ():
             #         player1.save_param(path_best)
             res = 0
 
-        if (epoch+1) % 1000 == 0:
-            test = tester_random(1000)
+        if (epoch+1) % 1000 == 0:       # Test against random every 1000 epochs
+            test = tester(1000)
             test_score = test[0]-test[1]
             if best_random < test_score:
                 best_random = test_score
@@ -136,7 +132,7 @@ def main ():
             print('test',test, 'best_random:', best_random)
             random_results.append(test_score)
 
-        if (epoch+1) % 5000 == 0:
+        if (epoch+1) % 5000 == 0:       # Save parameter data every 5000 epochs
             torch.save({'epoch': epoch, 'results': results, 'avglosses':avgLosses}, results_path)
             torch.save(buffer, buffer_path)
             

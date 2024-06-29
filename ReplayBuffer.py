@@ -15,10 +15,10 @@ class ReplayBuffer:
             self.buffer = deque(maxlen=capacity)
 
     def push (self, state : State, action, reward, next_state: State, done):
-        self.buffer.append((state.toTensor(), torch.from_numpy(np.array(action)), torch.tensor(reward), next_state.toTensor(), torch.tensor(done)))
+        self.buffer.append((state.to_tensor(), torch.from_numpy(np.array(action)), torch.tensor(reward), next_state.to_tensor(), torch.tensor(done)))
         if done:
             for i in range(end_priority):        
-                self.buffer.append((state.toTensor(), torch.from_numpy(np.array(action)), torch.tensor(reward), next_state.toTensor(), torch.tensor(done)))
+                self.buffer.append((state.to_tensor(), torch.from_numpy(np.array(action)), torch.tensor(reward), next_state.to_tensor(), torch.tensor(done)))
     
     def sample (self, batch_size):
         if (batch_size > self.__len__()):

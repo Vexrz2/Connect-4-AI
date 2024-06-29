@@ -2,9 +2,8 @@ from Connect4 import Connect4
 from State import State
 MAXSCORE = 100000
 
-class minMax_Agent:
-
-    def __init__(self, player, depth = 2, environment: Connect4 = None):
+class minMaxAgent:
+    def __init__(self, player, depth = 3, environment: Connect4 = None):
         self.player = player
         if self.player == 1:
             self.opponent = -1
@@ -14,19 +13,18 @@ class minMax_Agent:
         self.environment : Connect4 = environment
 
     def evaluate(self, gameState : State): 
-        score = self.environment.checkNInARow(gameState, 3)
-        score += 10*self.environment.checkNInARow(gameState, 4)
+        score = self.environment.get_n_sequences(gameState, 2) + 10*self.environment.get_n_sequences(gameState, 3) + 1000*self.environment.get_n_sequences(gameState, 4)
+        
         opponentState = State(gameState.board, self.opponent)
-        score -= self.environment.checkNInARow(opponentState, 3)
-        score -= 10*self.environment.checkNInARow(opponentState, 4)
+        score -= self.environment.get_n_sequences(opponentState, 2) + 10*self.environment.get_n_sequences(opponentState, 3) + 1000*self.environment.get_n_sequences(opponentState, 4)
         
         return score
 
-    def get_Action(self, state: State, train = False):
-        bestAction = self.minMax(state)[1]
+    def get_action(self, state: State):
+        bestAction = self.min_max(state)[1]
         return bestAction
 
-    def minMax(self, state:State):
+    def min_max(self, state:State):
         depth = 0
         return self.max_value(state, depth)
         
@@ -34,7 +32,7 @@ class minMax_Agent:
         
         value = -MAXSCORE
         # stop state
-        if depth == self.depth or self.environment.checkGameWin(state) or self.environment.checkGameDraw(state):
+        if depth == self.depth or self.environment.is_end_of_game():
             value = self.evaluate(state)
             return value, state.action
         
@@ -55,7 +53,7 @@ class minMax_Agent:
         value = MAXSCORE
 
         # stop state
-        if depth == self.depth or self.environment.checkGameWin(state) or self.environment.checkGameDraw(state):
+        if depth == self.depth or self.environment.is_end_of_game():
             value = self.evaluate(state)
             return value, state.action
         

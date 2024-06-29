@@ -1,11 +1,10 @@
 import pygame
 
-class Human_Agent:
-
+class HumanAgent:
     def __init__(self, player: int) -> None:
         self.player = player
 
-    def get_Action(self, event= None, state = None):
+    def get_action(self, event = None):
         if event.type == pygame.KEYUP:
             match event.key:
                 case pygame.K_1: return 0

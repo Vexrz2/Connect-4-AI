@@ -1,31 +1,24 @@
 import pygame
 from Graphics import *
 from Connect4 import Connect4
-from Human_Agent import Human_Agent
-from Random_Agent import Random_Agent
-from minMax_Agent import minMax_Agent
-from AlphaBeta_Agent import AlphaBetaAgent
+from agents import HumanAgent, RandomAgent, minMaxAgent, AlphaBetaAgent, DQNAgent
 from Constant import *
-from DQN_Agent import DQN_Agent
 import time
-   
-
 
 win = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption('Connect 4')
 environment = Connect4()
 graphics = Graphics(win, board = environment.state.board)
 
-# player1 = Human_Agent(player=1)
-# player1 = Random_Agent(player=1)
+player1 = HumanAgent(player=1)
+#player1 = RandomAgent(player=1)
 #player1 = AlphaBetaAgent(player=1, environment=environment)
-player1 = DQN_Agent(env=environment, player=1, train=False, parameters_path="Data/params_4.pth")
+#player1 = DQNAgent(env=environment, player=1, train=False, parameters_path="Data/params_4.pth")
 
-# player2 = Human_Agent(player=-1)
-player2 = Random_Agent(player=-1)
-# player2 = AlphaBetaAgent(player=-1, environment=environment)
-#player2 = DQN_Agent(env=environment, player=-1, train=False, parameters_path="Data/params_4.pth")
-
+# player2 = HumanAgent(player=-1)
+#player2 = RandomAgent(player=-1)
+player2 = AlphaBetaAgent(player=-1, environment=environment)
+#player2 = DQNAgent(env=environment, player=-1, train=False, parameters_path="Data/params_4.pth")
 
 def main ():
     run = True
@@ -36,22 +29,24 @@ def main ():
     while(run):
         clock.tick(FPS)
         
-        if not isinstance(player, Human_Agent): # Computer playing
+        if not isinstance(player, HumanAgent): # Computer playing
             time.sleep(1) # Extra (thinking) time for computer's turn
-            action = player.get_Action(state=environment.state, train=False)
+            action = player.get_action(state=environment.state)
             if (environment.move(action, environment.state)):
-                player = switchPlayers(player)
-                run = checkEndGame(player)
+                player = switch_players(player)
+                run = check_end_game(player)
         else:
             for event in pygame.event.get(): # Human playing
                 if event.type == pygame.QUIT:
                     run = False
                 if event.type == pygame.KEYUP:
-                    action = player.get_Action(event, environment.state)
-                    if 0 <= action < 7:
+                    action = player.get_action(event)
+                    if 0 <= action <= 6: 
                         if environment.move(action, environment.state):
-                            player = switchPlayers(player)
-                            run = checkEndGame(player)
+                            player = switch_players(player)
+                            run = check_end_game(player)
+                        else:
+                            print("Column full!")
                     elif action == 7:
                         print("Invalid move!")
         graphics.draw() # Update graphics
@@ -59,23 +54,22 @@ def main ():
         
     
     pygame.quit() # End game
-
   
-def switchPlayers(player):
+def switch_players(player):
     if player == player1:
        return player2
     else:
         return player1
 
-def checkEndGame(player):
-    if environment.checkGameWin(environment.state):
+def check_end_game(player):
+    if environment.check_game_win(environment.state):
         if player != player1:
             playerName = "red"
         else: 
-            playerName = "blue"
+            playerName = "yellow"
         print(f"Player {playerName} wins!")
         return False
-    if environment.checkGameDraw(environment.state):
+    if environment.check_game_draw(environment.state):
         print("Game draw.")
         return False
     return True

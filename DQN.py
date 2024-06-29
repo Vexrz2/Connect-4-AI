@@ -3,12 +3,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import copy
 
-# Parameters
+# NN Parameters
 input_size = 43 # state: board = 6 * 7 = 42 + action (1) 
 layer1 = 128
 output_size = 1 # Q(state, action)
 gamma = 0.99 
-
 
 class DQN (nn.Module):
     def __init__(self, device = torch.device('cpu')) -> None:
@@ -24,7 +23,7 @@ class DQN (nn.Module):
         x = self.output(x)
         return x
     
-    def loss (self, Q_value, rewards, Q_next_Values, Dones ):
+    def loss (self, Q_value, rewards, Q_next_Values, Dones ) -> torch.Tensor:
         Q_new = rewards + gamma * Q_next_Values * (1- Dones)
         return self.MSELoss(Q_value, Q_new)
     

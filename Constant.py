@@ -14,9 +14,10 @@ BLUE = (0, 0, 255)
 DARKBLUE = (0, 0, 200)
 LIGHTGRAY = (211,211,211)
 GREEN = (0, 128, 0)
-
+YELLOW = (255,255,0)
 
 # epsilon Greedy
 epsilon_start = 1
 epsilon_final = 0.1
 epsilon_decay = 300000
+

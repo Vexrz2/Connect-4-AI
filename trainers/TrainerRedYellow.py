@@ -4,7 +4,8 @@ from ReplayBuffer import ReplayBuffer
 import torch
 from Tester import Tester
 
-epochs = 100000
+# Training parameters
+epochs = 300000
 start_epoch = 0
 C = 500
 learning_rate = 0.0001
@@ -12,6 +13,7 @@ batch_size = 64
 env = Connect4()
 MIN_Buffer = 5000
 
+# Training files 
 File_Num = 1
 path_load= f'Data/params_{File_Num}.pth'
 path_Save=f'Data/params_{File_Num}.pth'

@@ -42,43 +42,59 @@ class Connect4:
     
     def check_game_win(self, state : State): # Check for win
         if state == self.get_init_state() or not state.last_action: # Still start of game
-            return False
+            return False, []
         row_col = state.last_action
         state.switch_player() # switch to player that played last action
-        win = (self.check_vertical(row_col, state, 4) or self.check_horizontal(row_col, state, 4) 
-               or self.check_main_diagonal(row_col, state, 4) or self.check_minor_diagonal(row_col, state, 4))
+        
+        vertical_check = self.check_vertical(row_col, state, 4)
+        horizontal_check = self.check_horizontal(row_col, state, 4)
+        main_diagonal_check = self.check_main_diagonal(row_col, state, 4)
+        minor_diagonal_check = self.check_minor_diagonal(row_col, state, 4)
+        
         state.switch_player()
-        return win
+        
+        if vertical_check[0]:
+            return vertical_check
+        elif horizontal_check[0]:
+            return horizontal_check
+        elif main_diagonal_check[0]:
+            return main_diagonal_check
+        elif minor_diagonal_check[0]:
+            return minor_diagonal_check
+        else:
+            return False, []
 
     def check_vertical(self, row_col, state:State, length): 
         row, col = row_col
         for startRow in range(max(0,row-length+1), min(row+1,ROWS-length+1)):
             colCheck = state.board[startRow:startRow+length, col]
-            if sum(colCheck) == length*state.player: # Horizontal four in a row
-                #print(f"vertical check: {row}, {startRow}, {colCheck}")
-                return True
-        return False
+            if sum(colCheck) == length*state.player: # Vertical n in a row 
+                if length == 4:
+                    coords = [(row, col) for row in range(startRow, startRow+length)] # Calculate coords of sequence in board
+                    return True, coords
+                return True, []
+        return False, []
 
     def check_horizontal(self, row_col, state:State, length): 
         row, col = row_col
         for startCol in range(max(0,col-length+1), min(col+1,COLS-length+1)):
             rowCheck = state.board[row, startCol:startCol+length]
-            if sum(rowCheck) == length*state.player: # Horizontal four in a row
-                #print(f"horizontal check: {row}, {startCol}, {rowCheck}")
-                return True
-        return False
+            if sum(rowCheck) == length*state.player: # Horizontal n in a row
+                if length == 4:
+                    coords = [(row, col) for col in range(startCol, startCol+length)] # Calculate coords of sequence in board
+                    return True, coords
+                return True, []
+        return False, []
 
     def check_main_diagonal(self, row_col, state:State, length):
         row, col = row_col
         offset = col - row # find offset from main diagonal
 
-        startRow = row - length + 1
-        startCol = col - length + 1
-        if offset < -2 or offset > 3:  # starting point of diagonal check is outside boundaries
-                return False
+        startRow = max(0, row - length + 1)
+        startCol = max(0, col - length + 1)
         
-        startRow = max(0, startRow)
-        startCol = max(0, startCol) # fix start point if valid
+        if offset < -2 or offset > 3:  # starting point of diagonal check is outside boundaries
+                return False, []
 
         if offset >= 0:
             startPoint = startRow # start point above main diagonal
@@ -87,7 +103,12 @@ class Connect4:
             for i in range(startPoint, endPoint+1):
                 diagCheck = currentDiagonal[i:i+length]
                 if sum(diagCheck) == length*state.player:
-                    return True
+                    if length == 4:
+                        rows = np.arange(state.board.shape[1] - offset)[i:i+length]
+                        cols = np.arange(offset, state.board.shape[1])[i:i+length]
+                        coords = list(zip(rows, cols)) # Calculate coords of sequence in board
+                        return True, coords
+                    return True, []
         else:
             startPoint = startCol # below main diagonal
             currentDiagonal = np.diag(state.board, offset)
@@ -95,8 +116,13 @@ class Connect4:
             for i in range(startPoint, endPoint+1):
                 diagCheck = currentDiagonal[i:i+length]
                 if sum(diagCheck) == length*state.player:
-                    return True
-        return False
+                    if length == 4:
+                        rows = np.arange(-offset, state.board.shape[0])[i:i+length]
+                        cols = np.arange(state.board.shape[0] + offset)[i:i+length]
+                        coords = list(zip(rows, cols)) # Calculate coords of sequence in board
+                        return True, coords
+                    return True, []
+        return False, []
 
     def check_minor_diagonal(self, row_col, state:State, length):
         flipBoard = np.flipud(state.board)
@@ -105,10 +131,19 @@ class Connect4:
         flipRowCol = (flipRow, col)
         flipState = State(flipBoard, state.player)
 
-        return self.check_main_diagonal(flipRowCol, flipState, length)
+        check_main_diagonal = self.check_main_diagonal(flipRowCol, flipState, length)
+        flipCoords = check_main_diagonal[1] # Coords are from "flipped board" so we have to fix them
+        if check_main_diagonal[0]: 
+            fixCoords = list()
+            for row_col in flipCoords:
+                row, col = row_col
+                row = ROWS - row - 1
+                fixCoords.append((row, col))
+            return True, fixCoords
+        return False, []
 
     def is_end_of_game(self, state: State):
-        return self.check_game_draw(state) or self.check_game_win(state)
+        return self.check_game_draw(state) or self.check_game_win(state)[0]
     
     def check_game_draw(self, state: State): # Checks if the game has come to a draw
         for col in range(0, COLS):
@@ -122,8 +157,8 @@ class Connect4:
         for i in range(ROWS):
             for j in range(COLS):
                 row_col = (i,j)
-                if (self.check_vertical(row_col, stateCopy, n) or self.check_horizontal(row_col, stateCopy, n) 
-                or self.check_main_diagonal(row_col, stateCopy, n) or self.check_minor_diagonal(row_col, stateCopy, n)):
+                if (self.check_vertical(row_col, stateCopy, n)[0] or self.check_horizontal(row_col, stateCopy, n)[0] 
+                or self.check_main_diagonal(row_col, stateCopy, n)[0] or self.check_minor_diagonal(row_col, stateCopy, n)[0]):
                     total += 1
 
         return total

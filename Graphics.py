@@ -34,6 +34,11 @@ class Graphics:
         center = self.calc_pos(row_col)
         color = self.calc_color(player)
         pygame.draw.circle(self.win,color , center, CIRCLE_RADIUS)
+    
+    def draw_piece_highlight(self, row_col, player):
+        row, col = row_col
+        pygame.draw.circle(self.win, BLACK, ((col+0.5)*SQUARE_SIZE, (row+0.5)*SQUARE_SIZE), CIRCLE_RADIUS+HIGHLIGHT_LINE_WIDTH)
+        self.draw_piece(row_col, player)
 
     def calc_pos(self, row_col):
         row, col = row_col
@@ -65,6 +70,10 @@ class Graphics:
         self.win.fill(DARKBLUE)
         self.draw_Lines_Circles()
         self.draw_all_pieces()
+        
+    def draw_sequence(self, rows_cols, player):
+        for row, col in rows_cols:
+            self.draw_piece_highlight((row,col), player)
 
     def draw_square(self, row_col, color):
         pos = self.calc_base_pos(row_col)

@@ -12,12 +12,12 @@ graphics = Graphics(win, board = environment.state.board)
 
 player1 = HumanAgent(player=1)
 #player1 = RandomAgent(player=1)
-#player1 = AlphaBetaAgent(player=1, depth=4, environment=environment)
+# player1 = AlphaBetaAgent(player=1, depth=4, environment=environment)
 #player1 = DQNAgent(env=environment, player=1, train=False, parameters_path="Data/params_4.pth")
 
-# player2 = HumanAgent(player=-1)
+player2 = HumanAgent(player=-1)
 #player2 = RandomAgent(player=-1)
-player2 = AlphaBetaAgent(player=-1, depth=4, environment=environment)
+# player2 = AlphaBetaAgent(player=-1, depth=4, environment=environment)
 #player2 = DQNAgent(env=environment, player=-1, train=False, parameters_path="Data/params_4.pth")
 
 def main ():
@@ -63,15 +63,21 @@ def switch_players(player):
         return player1
 
 def check_end_game(player):
-    if environment.check_game_win(environment.state):
-        time.sleep(1)
+    if environment.check_game_win(environment.state)[0]:
+        winning_sequence = environment.check_game_win(environment.state)[1]
+        graphics.draw_sequence(winning_sequence, -environment.state.player)
         if player != player1:
             playerName = "red"
         else: 
             playerName = "yellow"
+        pygame.display.set_caption(f"Player {playerName} wins!")
+        pygame.display.update()
+        time.sleep(2)
         print(f"Player {playerName} wins!")
         return False
     if environment.check_game_draw(environment.state):
+        pygame.display.set_caption("Game draw.")
+        pygame.display.update()
         print("Game draw.")
         return False
     return True

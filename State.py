@@ -15,6 +15,8 @@ class State:
         self.player *= -1
 
     def __eq__(self, other) ->bool:
+        if other == None: 
+            return False
         return np.equal(self.board, other.board).all()
 
     def __hash__(self) -> int:

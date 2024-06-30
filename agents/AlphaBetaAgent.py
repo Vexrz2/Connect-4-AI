@@ -21,7 +21,9 @@ class AlphaBetaAgent:
         return score
     
     def get_action(self, state: State) -> int:
-        value, bestAction = self.min_max(state)
+        if state == self.environment.get_init_state():
+            return 3    # Best opening move 
+        bestAction = self.min_max(state)[1]
         return bestAction
 
     def min_max(self, state:State):

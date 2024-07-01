@@ -1,5 +1,6 @@
 from Connect4 import Connect4
 from State import State
+from Constant import *
 MAXSCORE = 100000
 
 class AlphaBetaAgent:
@@ -14,15 +15,22 @@ class AlphaBetaAgent:
 
     def evaluate (self, gameState : State): 
         score = 6*self.environment.get_n_sequences(gameState, 2) + 40*self.environment.get_n_sequences(gameState, 3) + 3000*self.environment.get_n_sequences(gameState, 4)
+        score += self.add_positional_score(gameState)
         
         opponentState = State(gameState.board, self.opponent)
         score -= 6*self.environment.get_n_sequences(opponentState, 2) + 40*self.environment.get_n_sequences(opponentState, 3) + 3000*self.environment.get_n_sequences(opponentState, 4)
         
         return score
     
+    def add_positional_score(self, state: State):
+        positional_score = 0
+        for row in range(ROWS):
+            for col in range (COLS):
+                if state.player == state.board[row][col]:
+                    positional_score += 5*positional_weights[row][col]
+        return positional_score
+    
     def get_action(self, state: State) -> int:
-        if state == self.environment.get_init_state():
-            return 3    # Best opening move 
         bestAction = self.min_max(state)[1]
         return bestAction
 
@@ -39,11 +47,10 @@ class AlphaBetaAgent:
         # stop state
         if depth == self.depth or self.environment.is_end_of_game(state):
             value = self.evaluate(state)
-            state.last_action[1]
             return value, state.last_action[1]
         
         # start recursion
-        bestAction = None
+        bestAction = None 
         legal_actions = self.environment.get_actions(state)
         for action in legal_actions:
             newState = self.environment.next_state(action, state)

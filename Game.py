@@ -10,15 +10,15 @@ pygame.display.set_caption('Connect 4')
 environment = Connect4()
 graphics = Graphics(win, board = environment.state.board)
 
-player1 = HumanAgent(player=1)
+# player1 = HumanAgent(player=1)
 #player1 = RandomAgent(player=1)
-# player1 = AlphaBetaAgent(player=1, depth=4, environment=environment)
-#player1 = DQNAgent(env=environment, player=1, train=False, parameters_path="Data/params_4.pth")
+player1 = AlphaBetaAgent(player=1, depth=4, environment=environment)
+# player1 = DQNAgent(env=environment, player=1, train=False, parameters_path="Data/params_4.pth")
 
 player2 = HumanAgent(player=-1)
 #player2 = RandomAgent(player=-1)
 # player2 = AlphaBetaAgent(player=-1, depth=4, environment=environment)
-#player2 = DQNAgent(env=environment, player=-1, train=False, parameters_path="Data/params_4.pth")
+# player2 = DQNAgent(env=environment, player=-1, train=False, parameters_path="Data/params_4.pth")
 
 def main ():
     run = True
@@ -32,8 +32,8 @@ def main ():
         if not isinstance(player, HumanAgent): # Computer playing
             action = player.get_action(state=environment.state)
             if (environment.move(action, environment.state)):
-                player = switch_players(player)
                 run = check_end_game(player)
+                player = switch_players(player)
         else:
             for event in pygame.event.get(): # Human playing
                 if event.type == pygame.QUIT:
@@ -43,8 +43,8 @@ def main ():
                     action = player.get_action(event)
                     if 0 <= action <= 6: 
                         if environment.move(action, environment.state):
-                            player = switch_players(player)
                             run = check_end_game(player)
+                            player = switch_players(player)
                         else:
                             print("Column full!")
                     elif action == 7:
@@ -63,10 +63,11 @@ def switch_players(player):
         return player1
 
 def check_end_game(player):
-    if environment.check_game_win(environment.state)[0]:
-        winning_sequence = environment.check_game_win(environment.state)[1]
+    isWin, winning_sequence = environment.check_game_win(environment.state)
+    isDraw = environment.check_game_draw(environment.state)
+    if isWin:
         graphics.draw_sequence(winning_sequence, -environment.state.player)
-        if player != player1:
+        if player == player1:
             playerName = "red"
         else: 
             playerName = "yellow"
@@ -75,7 +76,7 @@ def check_end_game(player):
         time.sleep(2)
         print(f"Player {playerName} wins!")
         return False
-    if environment.check_game_draw(environment.state):
+    if isDraw:
         pygame.display.set_caption("Game draw.")
         pygame.display.update()
         print("Game draw.")

@@ -133,17 +133,14 @@ class Connect4:
 
         check_main_diagonal = self.check_main_diagonal(flipRowCol, flipState, length)
         flipCoords = check_main_diagonal[1] # Coords are from "flipped board" so we have to fix them
-        if check_main_diagonal[0]: 
-            fixCoords = list()
-            for row_col in flipCoords:
-                row, col = row_col
-                row = ROWS - row - 1
-                fixCoords.append((row, col))
-            return True, fixCoords
+        if check_main_diagonal[0]:
+            fixedCoords = list(map(lambda row_col: (ROWS - row_col[0] - 1, row_col[1]), flipCoords)) # Fix coords
+            return True, fixedCoords
         return False, []
 
     def is_end_of_game(self, state: State):
-        return self.check_game_draw(state) or self.check_game_win(state)[0]
+        isEnd = self.check_game_draw(state) or self.check_game_win(state)[0] or self.check_game_win(State(state.board, player=state.get_opponent()))[0]
+        return isEnd
     
     def check_game_draw(self, state: State): # Checks if the game has come to a draw
         for col in range(0, COLS):

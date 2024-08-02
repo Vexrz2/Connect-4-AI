@@ -184,8 +184,8 @@ class Connect4:
         if (self.is_end_of_game(next_state)):
             if self.check_game_draw(next_state):
                 return 0, True # Draw
-            return -state.player, True # Win
-        return 0, False # Not end of game
+            return -state.player, True # Win/Lose
+        return -0.01, False # Not end of game
 
         
         

@@ -23,9 +23,9 @@ class DQNAgent:
           else:
               self.DQN.eval()
 
-    def get_action (self, state:State, epoch = 0, yellow_state : State = None) -> int:
+    def get_action (self, state:State, epoch = 0, yellow_state : State = None, train = True) -> int:
         actions = self.env.get_actions(self.env.state)
-        if self.train:
+        if self.train and train:
             epsilon = self.epsilon_greedy(epoch)
             rnd = random.random()
             if rnd < epsilon:

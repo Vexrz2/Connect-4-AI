@@ -4,7 +4,7 @@ import torch
 import numpy as np
 from State import State
 
-capacity = 500000
+capacity = 200000
 end_priority = 2
 
 class ReplayBuffer:

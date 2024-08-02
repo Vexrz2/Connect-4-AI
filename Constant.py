@@ -19,8 +19,8 @@ YELLOW = (255,255,0)
 
 # epsilon Greedy
 epsilon_start = 1
-epsilon_final = 0.1
-epsilon_decay = 300000
+epsilon_final = 0.01
+epsilon_decay = 10000
 
 # For minmax
 positional_weights = [

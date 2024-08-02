@@ -2,11 +2,11 @@ import numpy as np
 import torch
 import matplotlib.pyplot as plt
 
-Directory = 'Data' 
-Files_num = [1,2,3,4]
+directory = 'data' 
+files_num = [1]
 results_path = []
 random_results_path = []
-for num in Files_num:
+for num in files_num:
     file = f'results_{num}.pth'
     results_path.append(file)
     file = f'random_results_{num}.pth'
@@ -14,11 +14,11 @@ for num in Files_num:
 
 results = []
 for path in results_path:
-    results.append(torch.load(Directory+'/'+path))
+    results.append(torch.load(directory+'/'+path))
 
 random_results = []
 for path in random_results_path:
-    random_results.append(torch.load(Directory+'/'+path))
+    random_results.append(torch.load(directory +'/'+path))
 
 for i in range(len(results)):
     print(results_path[i], max(results[i]['results']), np.argmax(results[i]['results']), len(results[i]['results']))

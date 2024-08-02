@@ -45,7 +45,7 @@ tests = 100
 
 if __name__ == '__main__':
     env = Connect4()
-    # player1 = DQNAgent(env=env, player=1, train=False, parameters_path="Data/params_4.pth")
+    # player1 = DQNAgent(env=env, player=1, train=False, parameters_path="data/params_4.pth")
     player1 = AlphaBetaAgent(player=1, depth=2, environment=env)
     player2 = RandomAgent(player=-1)
     # player2 = AlphaBetaAgent(player=-1, environment=env)
@@ -53,6 +53,6 @@ if __name__ == '__main__':
     print(test.test(tests))
     player1 = RandomAgent(player=1)
     player2 = AlphaBetaAgent(player=-1, depth=2, environment=env)
-    # player2 = DQNAgent(env=env, player=-1, train=False, parameters_path="Data/params_4.pth")
+    # player2 = DQNAgent(env=env, player=-1, train=False, parameters_path="data/params_4.pth")
     test = Tester(env,player1, player2)
     print(test.test(tests))

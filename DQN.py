@@ -6,6 +6,7 @@ import copy
 # NN Parameters
 input_size = 43 # state: board = 6 * 7 = 42 + action (1) 
 layer1 = 128
+layer2 = 64
 output_size = 1 # Q(state, action)
 gamma = 0.99 
 
@@ -14,11 +15,14 @@ class DQN (nn.Module):
         super().__init__()
         self.device = device
         self.linear1 = nn.Linear(input_size, layer1)
-        self.output = nn.Linear(layer1, output_size)
+        self.linear2 = nn.Linear(layer1, layer2)
+        self.output = nn.Linear(layer2, output_size)
         self.MSELoss = nn.MSELoss()
 
     def forward (self, x):
         x = self.linear1(x)
+        x = F.leaky_relu(x)
+        x = self.linear2(x)
         x = F.leaky_relu(x)
         x = self.output(x)
         return x
